@@ -411,7 +411,7 @@ const Usuarios = () => {
           </label>
           <button
             type='submit'
-            className='col-span-3 bg-green-400 p-4 rounded-full shadow-md hover:bg-green-600 text-white'
+            className='botonGuardarProducto'
           >
             Guardar Usuario
           </button>

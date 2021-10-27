@@ -682,7 +682,7 @@ tbody td {
     background-color: #401081;
     font-weight: 600;
     font-size: 4px;
-    color: white;
+    color: blue;
     border: 0px;
     border-radius: 10px;
     cursor: pointer;
@@ -800,7 +800,7 @@ tbody td {
   }
   
 .label {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 400;
     color:#686868;
     padding-bottom: 0.6em;
@@ -836,7 +836,7 @@ input[type=number], select, textarea {
 input[type=submit] {
     background-color: #1BC628;
     color: white;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     border: none;
     border-radius: 10px;

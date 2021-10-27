@@ -3,338 +3,408 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Filtros from '../components/Filtros';
+import { obtenerVentas, registrarVentas, editarVentas} from '../utils/api';
 import { nanoid } from 'nanoid';
+import { Dialog, Tooltip } from '@material-ui/core';
+import axios from 'axios';
 
-const GestionarVentasBackend = [
-    {
-        idVenta: "0001",
-        fecha_venta:"08/10/2021",
-        fecha_pago:"8/10/2021",
-        estado_venta: "Entregada",
-        idCliente:'0001',
-        nombre_cliente:'Laura Rojas',
-        total_venta: "$120.000",
-        idVendedor: "001",
-    },
-    {
-        idVenta: "0002",
-        fecha_venta:"08/10/2021",
-        fecha_pago:"8/10/2021",
-        estado_venta: "Cancelada",
-        idCliente:'0001',
-        nombre_cliente:'Laura Rojas',
-        total_venta: "$120.000",
-        idVendedor: "001",
-    },
-    {
-        idVenta: "0003",
-        fecha_venta:"08/10/2021",
-        fecha_pago:"8/10/2021",
-        estado_venta: "En Progreso",
-        idCliente:'0001',
-        nombre_cliente:'Laura Rojas',
-        total_venta: "$120.000",
-        idVendedor: "001",
-    },
-    {
-        idVenta: "0004",
-        fecha_venta:"08/10/2021",
-        fecha_pago:"8/10/2021",
-        estado_venta: "En Progreso",
-        idCliente:'0001',
-        nombre_cliente:'Laura Rojas',
-        total_venta: "$120.000",
-        idVendedor: "001",
-    },
-]
 
-const Ventas = () =>{
-    const [Ventas, setVentas] = useState([]);
-    const [mostrarTablaVentas, setMostrarTablaVentas] = useState(true);
-    const [textoBoton,setTextoBoton] = useState('Registrar Venta');
 
+const GestionarVentas = () => {
+
+    const [mostrarTabla, setMostrarTabla] = useState(true);
+    const [ventas, setVentas] = useState([]);
+    const [textoBoton, setTextoBoton] = useState('Insertar Nueva venta');
+    const [colorBoton, setColorBoton] = useState('indigo');
+    const [ejecutarConsulta, setEjecutarConsulta] = useState(true);
+  
     useEffect(() => {
-        setVentas(GestionarVentasBackend);
-    }, []);
-
+      console.log('consulta', ejecutarConsulta);
+      if (ejecutarConsulta) {
+        obtenerVentas(setVentas, setEjecutarConsulta);
+      }
+    }, [ejecutarConsulta]);
+  
     useEffect(() => {
-        if (mostrarTablaVentas) {
-            setTextoBoton('Registrar Venta');
-        } else {
-            setTextoBoton('Volver a Gestionar Ventas');
-            //setColorBoton();
-        }
-    }, [mostrarTablaVentas]);
-
-    return(
-        <div>
-        <button
-        onClick={() => {
-            setMostrarTablaVentas(!mostrarTablaVentas)
-        }}
-        className="botonCrear">
-        {textoBoton}
-        </button>
-        {mostrarTablaVentas ? (<TablaVentas listaVentas={Ventas}/>
-        ) : ( <RegistrarVentas
-            setMostrarTablaVentas={setMostrarTablaVentas}
-            listaVentas={Ventas}
-            setVentas={setVentas}
-        />
-        )}
-        <ToastContainer position='bottom-center' autoClose={4000} />
-    </div>
-    )
-}
-
-/*---------Tabla ventas--------------------*/
-
-
-const TablaVentas = ({ listaVentas }) => {
-
+      //obtener lista de usuarios desde el backend
+      if (mostrarTabla) {
+        setEjecutarConsulta(true);
+      }
+    }, [mostrarTabla]);
+  
     useEffect(() => {
-        console.log("listado de ventas en la tabla",listaVentas)
-    }, [listaVentas]);
-
-
-
+      if (mostrarTabla) {
+        setTextoBoton('Crear Nuevo venta');
+        setColorBoton('green');
+      } else {
+        setTextoBoton('Mostrar todos las ventas');
+        setColorBoton('indigo');
+      }
+    }, [mostrarTabla]);
+  
     return (
-    <div>
-        <Header/>
-            <div className="textosInicioSeccion">
-                <div className="tituloSeccion">
-                    {/* <span>Gestionar Ventas</span>
-                    <button  className="botonCrear">Registrar Venta</button>*/}
-                </div>
-                <div className="descripcionSeccion">.
-            </div>
-    </div>
-        <section>
-            <ul className="posicionBuscador">
-                <li>
-                    <div className="label">Ingresa el ID de la venta: </div>
-                            <Filtros/>
-                </li>
-            </ul>
-
-                    <div className="container__tabla">
-                         <div className="container__info2">
-                        <table summary="Ventas registradas" className="usersTable">
-                            <caption></caption>
-                                <thead>
-                                <tr>
-                                    <th scope="col">ID Venta</th>
-                                    <th scope="col">Fecha Venta</th>
-                                    <th scope="col">Fecha Pago</th>
-                                    <th scope="col">Estado Venta</th>
-                                    <th scope="col">ID Cliente</th>
-                                    <th scope="col">Nombre Cliente</th>
-                                    <th scope="col">Valor total</th>
-                                    <th scope="col">ID Vendedor</th>
-                                    <th scope="col">Acciones</th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                                    {listaVentas.map((ventas) => {
-                                        return(
-                                        <tr key={nanoid()}>
-                                                <td>{ventas.idVenta}</td>
-                                                <td>{ventas.fecha_venta}</td>
-                                                <td>{ventas.fecha_pago}</td>
-                                                <td><label className=
-                                                {ventas.estado_venta==='Entregada' ? "badgeAvailable" : ventas.estado_venta==='En Progreso' ? "badgeInProgress" : "badgeNotAvailable"} >{ventas.estado_venta}</label>
-                                                </td>
-                                                <td>{ventas.idCliente}</td>
-                                                <td>{ventas.nombre_cliente}</td>
-                                                <td>{ventas.total_venta}</td>
-                                                <td>{ventas.idVendedor}</td>
-                                                <td>
-                                                        <button className="editButton">
-                                                        <span className="material-icons">edit</span></button>
-                                                </td>
-                                                {/* <td>    
-                                                        <button className="editButton">
-                                                        <span className="material-icons">edit</span></button> 
-                                                </td> */}
-                                        </tr>
-                                        );
-                                        })}
-                            </tbody>
-                        </table>
-                        </div>
-                    </div>
-                </section>
-        <Footer/>
-    </div>
-    )
-};
-
-/*------------Registrar Ventas----------------------*/
-
-const RegistrarVentas = ({ setMostrarTablaVentas, listaVentas, setVentas }) => {
-    const form = useRef(null);
-
-    const submitForm = (e) => {
-        e.preventDefault();
-        const fd = new FormData(form.current);
-
-        const nuevaVenta = {};
-        fd.forEach((value, key) => {
-            nuevaVenta[key] = value;
-        });
-
-        setMostrarTablaVentas(true);
-        setVentas([...listaVentas, nuevaVenta]);
-        toast.success('Venta registrada exitosamente');
-    };
-
-    return(
-        <div>
-            <Header/>
-
-            <div className="textosInicioSeccion">
-                <div className="tituloSeccion">
-                    <span></span></div>
-                <div className="descripcionSeccion"></div>
-            </div>
-            <section className="contenedorFormVentas"id="container">
-                <div className="datos_cliente">
-                  <div className="action_cliente">
-                      <h4>Datos del Cliente</h4>
-                      <a href="#" className="btn_new btn_new_cliente"><i class="fas fa-plus"></i>Nuevo Cliente</a>
-                  </div>
-                  <form ref={form} onSubmit={submitForm} name ="form_new_cliente_venta" id= "form_new_cliente_venta" class="datos">
-                      <input id="input_ventas" type="hidden" name="action" value="addCliente"/>
-                      <input id="input_ventas" type="hidden" name="idCliente" value="" required/>
-
-                      <div className="wd20">
-                          <label id="label">Cédula</label>
-                          <input id="input_ventas" type="text" name="ced_cliente" required/>
-                      </div>
-                      <div className="wd50">
-                          <label id="label">Nombre</label>
-                          <input id="input_ventas" type="text" name="nom_cliente" disabled required/>
-                      </div>
-                      <div className="wd50">
-                          <label id="label">Teléfono</label>
-                          <input id="input_ventas" type="text" name="tel_cliente" disabled required/>
-                      </div>
-                      <div className="wd50">
-                          <label id="label">Dirección</label>
-                          <input id="input_ventas" type="text" name="dir_cliente" disabled required/>
-                      </div>
-                      <div id="div_registro_cliente" className= "wd100">
-                          <button type="submit" className="btn_save"><i className="far fa-save fa-lg"></i>Guardar</button>
-                      </div>
-                  </form>
-                 </div>
-
-              <div className="datos_venta">
-                  <h4>Datos del  Vendedor</h4>
-                  <div className="datos">
-                      <div className="wd50">
-                          <label id="label">ID Vendedor</label>
-                          <input id="input_ventas" type="text" name="idVendedor" required/>
-                      </div>
-                      <div className="wd50">
-                          <label id="label">Nombre</label>
-                          <input id="input_ventas" type="text" name="nom_cliente" disabled required/>
-                      </div>
-                      <div className="wd50">
-                          <label id="label">Fecha de facturación</label>
-                          <input id="input_fecha" type="date" name="fecha_fact" required/>
-                      </div>
-                      <div className="wd100">
-                      </div>
-                  </div>
-              </div>
-
-              <div className="datos_venta">
-                  <h4>Datos Venta</h4>
-                  <div className="datos">
-                      {/* <div className="wd50">
-                          <label id="label">Código</label>
-                          <input id="input_ventas" type="text" name="code" required/>
-                      </div> */}
-                      <div className="wd50">
-                          <label id="label">Producto
-                          <select id="listaProductos" name="descripcion" required defaultValue={0} >
-                            <option disabled value={0}> Selecciona un producto</option>
-                                <option>Bonsai Chumono</option>
-                                <option>Bonsai Komono</option>
-                                <option>Bonsai Kotate</option>
-                                <option>Bonsai Omono</option>
-                                <option>Bonsai Shito</option>
-                                <option>Bonsai Shohin</option>
-                        </select>
-                      </label>
-                      </div>
-                      <div className="wd50">
-                          <label id="label">Cantidad</label>
-                          <input id="input_fecha" min={1} type="number" name="quantity" required/>
-                      </div>
-                      <div className="wd50">
-                          <label id="label">Precio</label>
-                          <input id="input_fecha" type="number" name="price" required disabled/>
-                      </div>
-                      <div className="wd50">
-                          <label id="label">Fecha de Pago</label>
-                          <input id="input_fecha" type="date" name="fecha_pago" required/>
-                      </div>
-                  </div>
-              </div>
-
-              <table border="1"id="tbl_venta">
-                  <thead>
-                      <tr>
-                          <th id="t_ventas">Código</th>
-                          <th id="t_ventas" colspan="2">Producto</th>
-                          <th id="t_ventas">Cantidad</th>
-                          <th id="t_ventas" className="textright">Precio Unitario</th>
-                          <th id="t_ventas" className="textright">Precio Total</th>
-                          <th id="t_ventas"></th>
-                      </tr>
-                  </thead>
-
-                  <tbody id="detalle_venta">
-                      <tr>
-                          <td>1001</td>
-                          <td id="t_ventas" colspan="2">Tennis</td>
-                          <td id="t_ventas" className="textcenter">1</td>
-                          <td id="t_ventas" className="textright">100.00</td>
-                          <td id="t_ventas" className="textright">100.00</td>
-                          <td id="t_ventas" className=""><a className="link_delate" href="#" onclick= "event.preventDefault(); del_product_detalle(1);"><i className="far fa-trash-alt"></i>Eliminar</a></td>
-                      </tr>
-
-                      <tr>
-                          <td>1002</td>
-                          <td id="t_ventas" colspan="2">Camisas</td>
-                          <td id="t_ventas" className="textcenter">1</td>
-                          <td id="t_ventas" className="textright">150.00</td>
-                          <td id="t_ventas" className="textright">100.00</td>
-                          <td id="t_ventas" className=""><a className="link_delate" href="#" onclick= "event.preventDefault(); del_product_detalle(1);"><i className="far fa-trash-alt"></i></a>
-                          </td>
-                      </tr>
-                  </tbody>
-                  <tfoot>
-                      <tr>
-                          <td id="t_ventas" colspan="5" className="textright">Total </td>
-                          <td id="t_ventas" className="textright">1000.00</td>
-                      </tr>
-                  </tfoot>
-              </table>
-            </section>
-            <br/>
-            <br/>
-            <div className="botonesVenta">
-                <a href="#" className="btn_new" id="btn_facturar_venta"><i className="fas fa-edit"></i>Procesar</a>
-                <a href="#" className="btn_ok" id="btn_anular_venta"><i className="fas fa-ban"></i>Anular</a>
-            </div>
-        <Footer/>
-    </div>
+        
+      <div className='flex h-full w-full flex-col items-center justify-start p-10'>
+          <Header/>
+        <div className='flex flex-col w-full'>
+          <button
+            onClick={() => {
+              setMostrarTabla(!mostrarTabla);
+            }}
+            className={`botonCrear`}
+          >
+            {textoBoton}
+          </button>
+        </div>
+        {mostrarTabla ? (
+          <TablaVentas listaVentas={ventas} setEjecutarConsulta={setEjecutarConsulta} />
+        ) : (
+          <FormularioCreacionVentas
+            setMostrarTabla={setMostrarTabla}
+            listaVentas={ventas}
+            setVentas={setVentas}
+          />
+        )}
+        <ToastContainer position='bottom-center' autoClose={5000} />
+      </div>
     );
-};
+  };
+  
+  const TablaVentas = ({ listaVentas, setEjecutarConsulta }) => {
+    const [busqueda, setBusqueda] = useState('');
+    const [ventasFiltrados, setVentasFiltrados] = useState(listaVentas);
+  
+    useEffect(() => {
+      setVentasFiltrados(
+        listaVentas.filter((elemento) => {
+          return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
+        })
+      );
+    }, [busqueda, listaVentas]);
+  
+    return (
+        <div>
+        <Header/>
+        <ul className="posicionBuscador"> 
+                    <li>
+                        <div className="label">Ingresa el ID de la venta:</div>
+                        <input id="busqueda" type="text" value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                        placeholder="Ingrese el dato"
+                        />
+                        <button className="botonBuscar" type="submit">Buscar</button>
+                    </li>
+                </ul>
+        <div className="ventasTable">
+          <table summary="Ventas registradas">
+            <thead>
+              <tr>
+                <th>Id Venta</th>
+                <th>Descripcion</th>
+                <th>Precio venta</th>
+                <th>Estado venta</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ventasFiltrados.map((venta) => {
+                return (
+                  <FilaVenta
+                    key={nanoid()}
+                    venta={venta}
+                    setEjecutarConsulta={setEjecutarConsulta}
+                  />
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className='flex flex-col w-full m-2 md:hidden'>
+          {ventasFiltrados.map((el) => {
+            return (
+              <div className='bg-gray-400 m-2 shadow-xl flex flex-col p-2 rounded-xl'>
+                <span>{el.id_venta}</span>
+                <span>{el.description}</span>
+                <span>{el.price_venta}</span>
+                <span>{el.status_venta}</span>
+                
+              </div>
+            );
+          })}
+        </div>
+        <Footer/>
+      </div>
+      
+    );
+  };
+  
+  const FilaVenta = ({ venta, setEjecutarConsulta }) => {
+    const [edit, setEdit] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [infoNuevoVenta, setInfoNuevoVenta] = useState({
+      _id_venta: venta._id_venta,
+      description: venta.description,
+      price_venta: venta.price_venta,
+      status_venta: venta.status_venta,
+     
+    });
+  
+    const actualizarVenta = async () => {
+      //enviar la info al backend
+      const options = {
+        method: 'PATCH',
+        url: 'http://localhost:5000/usuario/editar',
+        headers: { 'Content-Type': 'application/json' },
+        data: { ...infoNuevoVenta, id:venta._id_venta },
+      };
+  
+      await axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data);
+          toast.success('Venta modificada con éxito');
+          setEdit(false);
+          setEjecutarConsulta(true);
+        })
+        .catch(function (error) {
+          toast.error('Error modificando la venta');
+          console.error(error);
+        });
+    };
+  
+    const eliminarVenta = async () => {
+      const options = {
+        method: 'DELETE',
+        url: 'http://localhost:3001/ventas/eliminar',
+        headers: { 'Content-Type': 'application/json' },
+        data: { id: venta._id_venta },
+      };
+  
+      await axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data);
+          toast.success('Venta eliminada con éxito');
+          setEjecutarConsulta(true);
+        })
+        .catch(function (error) {
+          console.error(error);
+          toast.error('Error eliminando la venta');
+        });
+      setOpenDialog(false);
+    };
+  
+    return (
+      <tr>
+        {edit ? (
+          <>
+            <td>{infoNuevoVenta._id}</td>
+            <td>
+              <input
+                className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+                type='text'
+                value={infoNuevoVenta._id_venta}
+                onChange={(e) => setInfoNuevoVenta({ ...infoNuevoVenta, _id_venta: e.target.value })}
+              />
+            </td>
+  
+            <td>
+              <input
+                className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+                type='text'
+                value={infoNuevoVenta.description}
+                onChange={(e) => setInfoNuevoVenta({ ...infoNuevoVenta, description: e.target.value })}
+              />
+            </td>
+            <td>
+              <input
+                className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+                type='text'
+                value={infoNuevoVenta.price_venta}
+                onChange={(e) =>
+                  setInfoNuevoVenta({ ...infoNuevoVenta, price_venta: e.target.value })
+                }
+              />
+            </td>
+  
+            <td>
+              <input
+                className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+                type='text'
+                value={infoNuevoVenta.status_venta}
+                onChange={(e) =>
+                  setInfoNuevoVenta({ ...infoNuevoVenta, status_venta: e.target.value })
+                }
+              />
+            </td>
+  
+            
+  
+          </>
+        ) : (
+          <>
+            <td>{venta._id.slice(23)}</td>
+            <td>{venta.description}</td>
+            <td>{venta.price_venta}</td>
+            <td>{venta.status_venta}</td>
+          </>
+        )}
+        <td>
+          <div className='flex w-full justify-around'>
+            {edit ? (
+              <>
+                <Tooltip title='Confirmar Edición' arrow>
+                  <i
+                    onClick={() => actualizarVenta()}
+                    className='fas fa-check text-green-700 hover:text-green-500'
+                  />
+                </Tooltip>
+                <Tooltip title='Cancelar edición' arrow>
+                  <i
+                    onClick={() => setEdit(!edit)}
+                    className='fas fa-ban text-yellow-700 hover:text-yellow-500'
+                  />
+                </Tooltip>
+              </>
+            ) : (
+              <>
+                <Tooltip title='Editar Venta' arrow>
+                  <i
+                    onClick={() => setEdit(!edit)}
+                    className='fas fa-pencil-alt text-yellow-700 hover:text-yellow-500'
+                  />
+                </Tooltip>
+                <Tooltip title='Eliminar Venta' arrow>
+                  <i
+                    onClick={() => setOpenDialog(true)}
+                    className='fas fa-trash text-red-700 hover:text-red-500'
+                  />
+                </Tooltip>
+              </>
+            )}
+          </div>
+          <Dialog open={openDialog}>
+            <div className='p-8 flex flex-col'>
+              <h1 className='text-gray-900 text-2xl font-bold'>
+                ¿Está seguro de querer eliminar esta venta?
+              </h1>
+              <div className='flex w-full items-center justify-center my-4'>
+                <button
+                  onClick={() => eliminarVenta()}
+                  className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
+                >
+                  Sí
+                </button>
+                <button
+                  onClick={() => setOpenDialog(false)}
+                  className='mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md'
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </Dialog>
+        </td>
+      </tr>
+    );
+  };
+  
+  const FormularioCreacionVentas = ({ setMostrarTabla, listaVentas, setVentas }) => {
+    const form = useRef(null);
+  
+    const submitForm = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form.current);
+  
+      const nuevoVenta = {};
+      fd.forEach((value, key) => {
+        nuevoVenta[key] = value;
+      });
+  
+  
+      const options = {
+        method: 'POST',
+        url: 'http://localhost:3001/ventas/nuevo',
+        headers: { 'Content-Type': 'application/json' },
+        data: { _id_venta: nuevoVenta._id_venta, description: nuevoVenta.description, price_venta: nuevoVenta.price_venta, status_venta: nuevoVenta.status_venta },
+      };
+  
+      await axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data);
+          toast.success('Agregando venta nueva');
+        })
+        .catch(function (error) {
+          console.error(error);
+          toast.error('Error al agregar venta');
+         });
+  
+      setMostrarTabla(true);
+    };
+  
+    return (
 
-export default Ventas;
+        <div className="container__all" id="container_all">
+        <div class="cover">
+      <div class="containe__cover">
+        <div class="container__info">
+
+        <h2>Ingresar Nueva Venta</h2>
+        <form ref={form} onSubmit={submitForm} className='flex flex-col'>
+          <label className='flex flex-col' htmlFor='descripcion venta'>
+            Descripción venta
+            <input
+              name='descripcion'
+              className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+              type='text'
+              placeholder='Descripcion'
+              required
+            />
+          </label>
+          
+          <label className='flex flex-col' htmlFor='precio'>
+            Precio venta
+            <input
+              name='precio'
+              className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+              type='text'
+              placeholder='precio'
+              required
+            />
+          </label>
+  
+          <label className='flex flex-col' htmlFor='status'>
+            Estado de la venta
+            <select
+              className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+              name='status'
+              required
+              defaultValue={0}
+            >
+              <option disabled value={0}>
+                Seleccione Estado de la venta
+              </option>
+              <option>Entregada</option>
+              <option>Cancelada</option>
+              <option>En progreso</option>
+            </select>
+          </label>
+          <button
+            type='submit'
+            className='col-span-3 bg-green-400 p-4 rounded-full shadow-md hover:bg-green-600 text-white'
+          >
+            Guardar Venta
+          </button>
+        </form>
+        </div>
+        </div>
+        </div>
+        <Footer/>
+      </div>
+      
+    );
+  };
+
+
+export default GestionarVentas;

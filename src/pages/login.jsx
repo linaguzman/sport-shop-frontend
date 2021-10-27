@@ -6,30 +6,24 @@ function Login() {
   const { loginWithRedirect } = useAuth0();
   return (
     <div>
-        <div className="container">
-            <div className="divlogo"> 
-               <h1>Comencemos</h1>
-               <img src="balon.png" alt="" /> 
-                <div className="divinternopiedepagina">
-                </div>
-            </div>  
-
+        <div className="container"> 
             <div className="divlogin">
-                <h1>Bienvenido<br></br>a la plataforma de Sports Shop</h1>
+                <h1>Bienvenidos a Sports Shop</h1>
                 {/* <p>Ingresa tus datos.</p><br></br> 
                 <form>
                 <label for="username"> Usuario</label><br/>
                 <input type="text"  placeholder="Enter Username"></input><br />
                 <label for="password">Contraseña</label><br />
                 <input type="password" placeholder="Enter Password"></input><br /> */}
-                 <div>  
-                    {/* <img src={google} alt='Logo Google' className='logoGoogle'/> */}
-                    <button className="botonlogin" type="submit">Registrarse con Google</button><br></br> 
-                  </div>
-                
                  <div>
                     <button className="botonlogin" type="submit" onClick={() => loginWithRedirect()} >Ingresar con Google</button>
                   </div>
+                 <div>  
+                    {/* <img src={google} alt='Logo Google' className='logoGoogle'/> */}
+                    <button className="botonlogin" type="submit" onClick={() => loginWithRedirect()}>Registrarse con Google</button><br></br> 
+                  </div>
+                
+                
                
                 {/* <script src="https://accounts.google.com/gsi/client" async defer></script> */}
                 {/*</form>              

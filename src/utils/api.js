@@ -1,85 +1,47 @@
 import axios from 'axios';
 
+/*---------VENTAS-------------- */
 
-export const obtenerProductos = async (successCallback, errorCallback) => {
+export const obtenerVentas = async (setVentas, setEjecutarConsulta) => {
   const options = { method: 'GET',
-  url: 'http://localhost:3001/productos/' };
-  await axios.request(options).then(successCallback).catch(errorCallback);
+  url: 'http://localhost:3001/ventas'};
+  await axios
+  .request(options)
+  .then(function(response){
+    setVentas(response.data);
+  })
+  .catch(function(error){
+    console.error(error);
+  })
 };
 
-export const registrarProducto = async (data, successCallback, errorCallback) => {
-  const options = {
-    method: 'POST',
-    url: 'http://localhost:3001/productos/create',
-    headers: { 'Content-Type': 'application/json' },
-    data,
-  };
-  await axios.request(options).then(successCallback).catch(errorCallback);
+/*---------PRODUCTOS------------*/
+
+export const obtenerProductos = async (setProductos, setEjecutarConsulta) => {
+  const options = { method: 'GET',
+  url: 'http://localhost:3001/productos'};
+  await axios
+  .request(options)
+  .then(function(response){
+    setProductos(response.data);
+  })
+  .catch(function(error){
+    console.error(error);
+  })
 };
-
-export const editarProducto = async ( data, successCallback, errorCallback) => {
-  const options = {
-    method: 'PATCH',
-    url: 'http://localhost:3001/productos/update/',
-    headers: { 'Content-Type': 'application/json' },
-    data,
-  };
-  await axios.request(options).then(successCallback).catch(errorCallback);
-};
-
-
-/*---------VENTAS-------------*/
-
-/*{export const obtenerVentas = async (successCallback, errorCallback) => {
-  const options = { method: 'GET', url: 'http://localhost:5000/Ventas/' };
-  await axios.request(options).then(successCallback).catch(errorCallback);
-};
-
-export const registrarVenta = async (data, successCallback, errorCallback) => {
-  const options = {
-    method: 'POST',
-    url: 'http://localhost:5000/Ventas/',
-    headers: { 'Content-Type': 'application/json' },
-    data,
-  };
-  await axios.request(options).then(successCallback).catch(errorCallback);
-};
-
-export const editarVenta = async (id, data, successCallback, errorCallback) => {
-  const options = {
-    method: 'PATCH',
-    url: `http://localhost:5000/Ventas/${id}/`,
-    headers: { 'Content-Type': 'application/json' },
-    data,
-  };
-  await axios.request(options).then(successCallback).catch(errorCallback);
-};
-}*/
 
 /*---------USUARIOS-------------*/
 
-export const obtenerUsuarios = async (successCallback, errorCallback) => {
+export const obtenerUsuarios = async (setUsuarios, setEjecutarConsulta) => {
   const options = { method: 'GET',
-  url: 'http://localhost:3001/usuarios/' };
-  await axios.request(options).then(successCallback).catch(errorCallback);
+  url: 'http://localhost:3001/usuarios'};
+  await axios
+  .request(options)
+  .then(function(response){
+    setUsuarios(response.data);
+  })
+  .catch(function(error){
+    console.error(error);
+  })
 };
 
-export const registrarUsuarios = async (data, successCallback, errorCallback) => {
-  const options = {
-    method: 'POST',
-    url: 'http://localhost:3001/usuarios/create',
-    headers: { 'Content-Type': 'application/json' },
-    data,
-  };
-  await axios.request(options).then(successCallback).catch(errorCallback);
-};
-
-export const editarUsuarios = async ( data, successCallback, errorCallback) => {
-  const options = {
-    method: 'PATCH',
-    url: 'http://localhost:3001/usuarios/update/',
-    headers: { 'Content-Type': 'application/json' },
-    data,
-  };
-  await axios.request(options).then(successCallback).catch(errorCallback);
-};

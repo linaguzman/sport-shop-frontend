@@ -5,285 +5,425 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { obtenerUsuarios, registrarUsuarios, editarUsuarios} from '../utils/api';
 import { nanoid } from 'nanoid';
+import { Dialog, Tooltip } from '@material-ui/core';
 import axios from 'axios';
-import ReactTooltip from 'react-tooltip';
-// import axios from 'axios';
 // import { ToastContainer, toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToastify.css';
 
-const GestionarUsuariosBackend= []
 
-    /*Esta función permite editar cada registro de la tabla de usuario, solo permite editar estado y rol*/
-    
-    const FilaUsuarios = ({usuario})=>{
-    
-        const [edit, setEdit] = useState(false);
-        const [infoUsuario, setInfoUsuario]=useState(
-            {
-                id_usuario: usuario.id_usuario,
-                given_name: usuario.given_name,
-                family_name: usuario.family_name,
-                email: usuario.email,
-                rol: usuario.rol,
-                estado: usuario.estado,
-            }
-        );
-    
-        const actualizarDatosUsuarios = async () =>{
-            await editarUsuarios(
-                {   _id:usuario._id,
-                    id_usuario: infoUsuario.id_usuario,
-                    given_name: infoUsuario.given_name,
-                    family_name: infoUsuario.family_name,
-                    email: infoUsuario.email,
-                    rol: infoUsuario.rol,
-                    estado: infoUsuario.estado,
-                },
-                (response) => {
-                    toast.success('Usuario editado con éxito');
-                    setEdit(false);
-                },
-                (error) => {
-                    toast.error('Error editando el Usuario');
-                    console.error(error);
-                }
-            );
-        };
-        
-        return(
-            <tr>
-                { edit ? (
-                <>
-                <td>{usuario.id_usuario}</td>
-                <td>{usuario.given_name}</td>
-                <td>{usuario.family_name}</td>
-                <td>{usuario.email}</td>
-                <td>
-                 <select name="rol_usuario" className="listaUsuarios" required value={infoUsuario.rol} onChange={(e)=>setInfoUsuario({...infoUsuario, rol:e.target.value})} >
-                    <option disabled value={0}> Selecciona un rol</option>
-                        <option>Administrador</option>
-                        <option>Vendedor</option>
-                </select>
-                </td>
-                 <td>
-                 <select name="estado_usuario" className="listaUsuarios" required value={infoUsuario.estado} onChange={(e)=>setInfoUsuario({...infoUsuario, estado:e.target.value})}>
-                    <option disabled value={0}>Seleccione el estado</option>
-                        <option>Aprobado</option>
-                        <option>Pendiente</option>
-                </select>
-                </td>
-                <td>
-                <button className="checkButton" onClick={actualizarDatosUsuarios}>
-                            <span className="material-icons">check</span></button></td>
-                <td>
-                <button className="editButton" onClick={()=>setEdit(true)}> 
-                <span className="material-icons">cancel</span></button></td>
-                            
-                </> 
-                ) : (
-                        <> 
-                        <td>{usuario.id_usuario}</td>
-                        <td>{usuario.given_name}</td>
-                        <td>{usuario.family_name}</td>
-                        <td>{usuario.email}</td>
-                        <td>{usuario.rol}</td>
-                        <td><label className={usuario.estado==='Aprobado'?"badgeAvailable":"badgeNotAvailable"}>
-                            {usuario.estado}</label></td>
-                        <td><button className="editButton" onClick={()=>setEdit(true)}> 
-                            <span className="material-icons">edit</span></button></td>            
-                    </>
-                )
-                }        
-            </tr>     
-            
-        ) 
-       
-    };
-    
-    const GestionarUsuarios = () => {
-    
-        const [GestionarUsuarios, setGestionarUsuarios] = useState([]);
-        const form=useRef(null);
-        const [busqueda, setBusqueda]=useState("");
-        // const [ejecutarConsulta, setEjecutarConsulta]=useState(true);
-        const [usuariosFiltrados, setUsuariosfiltrados]=useState(GestionarUsuariosBackend);
-    
-        //hacer esto cuando tengamos la base lista de usuarios, desde hora y 50m min para complementar, clase 14
-        // useEffect(() =>{
-        //     if (ejecutarConsulta){
-    
-        //     }
-        // }, [ejecutarConsulta]);
-        
-        //este use effect se debe actualizar cuando se tenga la conexión con el backend
-        useEffect(() => {
-            if (GestionarUsuarios) {
-                obtenerUsuarios((response) => {
-                    console.log('la respuesta que se recibio fue', response);
-                    setGestionarUsuarios(response.data);
-                },
-                (error) => {
-                    console.error('Salio un error:', error);
-                }
-                );
-                
-            }
-    
-        }, []);
-    
-        useEffect(() => {
-            console.log("Busqueda", busqueda);
-            console.log("lista Original",GestionarUsuariosBackend);
-            console.log("listafiltrada",
-            setUsuariosfiltrados(
-                GestionarUsuariosBackend.filter(elemento=>{
-                return JSON.stringify(elemento).includes(busqueda);
-    
-            }))
-            )
-    
-        }, [busqueda]);
-    
-        const submitEdit =(e)=>{
-            e.preventDefault();
-            const fd = new FormData(form.current);
-            console.log(e);
-        }
-            return (
-                <div>
-                    <Header/>
-                    <div className="textosInicioSeccion">
-                    <div className="tituloSeccion"></div>
-                    <div className="descripcionSeccion"></div>
-                </div>   
-                    <section>    
-                        <ul className="posicionBuscador"> 
-                            <li>
-                                <div className="label">Ingresa el ID del usuario:</div>
-                                <input id="busqueda" type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)}/>
-                                <button className="botonBuscar" type="submit">Buscar</button>
-                            </li>
-                        </ul>
+/*--Esta función permite editar cada registro de la tabla de usuario, solo permite editar estado y rol---*/
 
-                        <div className="container__tabla">
-                            <div className="container__info2">
-                                <h2>Lista de usuarios en el sistemas</h2>
-                        {/* <form ref={form} onSubmit={submitEdit}>*/ }
-                            <table summary="Usuarios registrados" className="usersTable">
-                                
-                                    <thead>
-                                    <tr>
-                                        <th scope="col">ID Usuario</th>
-                                        <th scope="col">Nombres</th>
-                                        <th scope="col">Apellidos</th>
-                                        <th scope="col">Correo</th>
-                                        <th scope="col">Rol</th>
-                                        <th scope="col">Estado usuario</th>
-                                        <th scope="col" id="acciones">Acción</th> 
-                                    </tr>
-                                    </thead>
-                                <tbody>
-                                {GestionarUsuarios.map((usuario) => {
-                                    return (
-                                        <FilaUsuarios key={nanoid()} usuario={usuario}/>
-                                    );
-                                })}
-                                </tbody>
-                            </table>
-                        {/* </form>*/ }
-                        </div>
-                    </div>
-
-                </section>
-            <Footer/>
-        </div>               
-    )};   
-    
-    /* FORMULARIO Crear Nuevos Productos */
-    
-    const RegistrarUsuarios = ({ setMostrarTablaUsuarios, listaUsuarios, setUsuarios }) => {
-        const form = useRef(null);
-    
-        //async trabaja con await axios    
-        const submitForm = async (e) => {
-            e.preventDefault();
-            const fd = new FormData(form.current);
-    
-            const nuevoUsuario = {};
-            fd.forEach((value, key) => {
-                nuevoUsuario[key] = value;
-            });
-            //se define el método POST y la url 3001 (AQUÍ SE MUESTRAN DATOS)
-            await registrarUsuarios(
-                {
-                    idUsuario: nuevoUsuario.idUsuario,
-                    descripcion: nuevoUsuario.descripcion,
-                    valor: nuevoUsuario.valor,
-                    estado: nuevoUsuario.estado,
-                },
-                (response) => {
-                  console.log(response.data);
-                  toast.success('Nuevo usuario agregado con éxito');
-                },
-                (error) => {
-                  console.error(error);
-                  toast.error('Error agregando el usuario');
-                }
-              );
-          
-            setMostrarTablaUsuarios(true);
-        };
-          
+const Usuarios = () => {
+    const [mostrarTabla, setMostrarTabla] = useState(true);
+    const [usuarios, setUsuarios] = useState([]);
+    const [textoBoton, setTextoBoton] = useState('Insertar Nuevo usuario');
+    const [colorBoton, setColorBoton] = useState('indigo');
+    const [ejecutarConsulta, setEjecutarConsulta] = useState(true);
+  
+    useEffect(() => {
+      console.log('consulta', ejecutarConsulta);
+      if (ejecutarConsulta) {
+        obtenerUsuarios(setUsuarios, setEjecutarConsulta);
+      }
+    }, [ejecutarConsulta]);
+  
+    useEffect(() => {
+      //obtener lista de usuarios desde el backend
+      if (mostrarTabla) {
+        setEjecutarConsulta(true);
+      }
+    }, [mostrarTabla]);
+  
+    useEffect(() => {
+      if (mostrarTabla) {
+        setTextoBoton('Crear Nuevo usuario');
+        setColorBoton('green');
+      } else {
+        setTextoBoton('Mostrar todos los usuarios');
+        setColorBoton('indigo');
+      }
+    }, [mostrarTabla]);
+  
+    return (
         
-        return(
-            <div>
-                <Header/>
-                <div className="textosInicioSeccion">
-                <div className="tituloSeccion">
-                    <span>Agregar nuevo usuario</span>
-                        </div>
-                <div className="descripcionSeccion">Ingresa los datos del nuevo usuario.</div>
-            </div>
-                <div className="contenedorFormulario">
-                <form ref={form} onSubmit={submitForm} className='flex flex-col'>
-    
-                    <label htmlFor="id">ID de Usuario
-                    <input type="number" name="idUsuario"
-                    placeholder="Ejemplo:Name" required/>
-                    </label>
-                
-                    <label htmlFor="descripcionUsuario">Descripción del Usuario
-                    <select name="descripcion" required defaultValue={0} >
-                        <option disabled value={0}> Selecciona</option>
-                            <option>Bonsai Chumono</option>
-                            <option>Bonsai Komono</option>
-                            <option>Bonsai Kotate</option>
-                            <option>Bonsai Omono</option>
-                            <option>Bonsai Shito</option>
-                            <option>Bonsai Shohin</option>
-                    </select>
-                    </label>
-    
-                    <label htmlFor="valorProducto">Valor producto
-                    <input type="number" name="valor"
-                    placeholder="Ingresa el valor en pesos..." required/>
-                    </label>
-                
-                    <label htmlFor="estadoUsuario">Estado del usuario
-                        <select name="estado" required defaultValue={0} >
-                            <option disabled value={0}> Selecciona un estado</option>
-                            <option>Disponible</option>
-                            <option>No disponible</option>
-                        </select>
-                    </label>
-                    <button type="submit" className="botonGuardarUsuario"> Guardar nuevo Usuario
-                    </button>
-                </form>
-                </div>
-            <Footer/>
+      <div className='flex h-full w-full flex-col items-center justify-start p-10'>
+          <Header/>
+        <div className='flex flex-col w-full'>
+          <button
+            onClick={() => {
+              setMostrarTabla(!mostrarTabla);
+            }}
+            className={`botonCrear`}
+          >
+            {textoBoton}
+          </button>
         </div>
-        );
+        {mostrarTabla ? (
+          <TablaUsuarios listaUsuarios={usuarios} setEjecutarConsulta={setEjecutarConsulta} />
+        ) : (
+          <FormularioCreacionUsuarios
+            setMostrarTabla={setMostrarTabla}
+            listaUsuarios={usuarios}
+            setUsuarios={setUsuarios}
+          />
+        )}
+        <ToastContainer position='bottom-center' autoClose={5000} />
+      </div>
+    );
+  };
+  
+  const TablaUsuarios = ({ listaUsuarios, setEjecutarConsulta }) => {
+    const [busqueda, setBusqueda] = useState('');
+    const [usuariosFiltrados, setUsuariosFiltrados] = useState(listaUsuarios);
+  
+    useEffect(() => {
+      setUsuariosFiltrados(
+        listaUsuarios.filter((elemento) => {
+          return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
+        })
+      );
+    }, [busqueda, listaUsuarios]);
+  
+    return (
+        <div>
+        <Header/>
+        <ul className="posicionBuscador"> 
+                    <li>
+                        <div className="label">Ingresa el ID de la venta:</div>
+                        <input id="busqueda" type="text" value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                        placeholder="Ingrese el dato"
+                        />
+                        <button className="botonBuscar" type="submit">Buscar</button>
+                    </li>
+                </ul>
+        <div className="ventasTable">
+          <table summary="Ventas registradas">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Rol usuario</th>
+                <th>Estado usuario</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usuariosFiltrados.map((usuario) => {
+                return (
+                  <FilaUsuario
+                    key={nanoid()}
+                    usuario={usuario}
+                    setEjecutarConsulta={setEjecutarConsulta}
+                  />
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className='flex flex-col w-full m-2 md:hidden'>
+          {usuariosFiltrados.map((el) => {
+            return (
+              <div className='bg-gray-400 m-2 shadow-xl flex flex-col p-2 rounded-xl'>
+                <span>{el.name}</span>
+                <span>{el.lastname}</span>
+                <span>{el.role}</span>
+                <span>{el.status}</span>
+                
+              </div>
+            );
+          })}
+        </div>
+        <Footer/>
+      </div>
+      
+    );
+  };
+  
+  const FilaUsuario = ({ usuario, setEjecutarConsulta }) => {
+    const [edit, setEdit] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [infoNuevoUsuario, setInfoNuevoUsuario] = useState({
+      _id: usuario._id,
+      name: usuario.name,
+      lastname: usuario.lastname,
+      role: usuario.role,
+      status: usuario.status,
+     
+    });
+  
+    const actualizarUsuario = async () => {
+      //enviar la info al backend
+      const options = {
+        method: 'PATCH',
+        url: 'http://localhost:3001/usuarios/editar',
+        headers: { 'Content-Type': 'application/json' },
+        data: { ...infoNuevoUsuario, id: usuario._id },
+      };
+  
+      await axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data);
+          toast.success('Usuario modificado con éxito');
+          setEdit(false);
+          setEjecutarConsulta(true);
+        })
+        .catch(function (error) {
+          toast.error('Error modificando el usuario');
+          console.error(error);
+        });
     };
+  
+    const eliminarUsuario = async () => {
+      const options = {
+        method: 'DELETE',
+        url: 'http://localhost:3001/usuarios/eliminar',
+        headers: { 'Content-Type': 'application/json' },
+        data: { id: usuario._id },
+      };
+  
+      await axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data);
+          toast.success('Usuario eliminado con éxito');
+          setEjecutarConsulta(true);
+        })
+        .catch(function (error) {
+          console.error(error);
+          toast.error('Error eliminando el usuario');
+        });
+      setOpenDialog(false);
+    };
+  
+    return (
+      <tr>
+        {edit ? (
+          <>
+            <td>{infoNuevoUsuario._id}</td>
+            <td>
+              <input
+                className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+                type='text'
+                value={infoNuevoUsuario.name}
+                onChange={(e) => setInfoNuevoUsuario({ ...infoNuevoUsuario, name: e.target.value })}
+              />
+            </td>
+  
+            <td>
+              <input
+                className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+                type='text'
+                value={infoNuevoUsuario.lastname}
+                onChange={(e) => setInfoNuevoUsuario({ ...infoNuevoUsuario, lastname: e.target.value })}
+              />
+            </td>
+            <td>
+              <input
+                className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+                type='text'
+                value={infoNuevoUsuario.role}
+                onChange={(e) =>
+                  setInfoNuevoUsuario({ ...infoNuevoUsuario, role: e.target.value })
+                }
+              />
+            </td>
+  
+            <td>
+              <input
+                className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+                type='text'
+                value={infoNuevoUsuario.status}
+                onChange={(e) =>
+                  setInfoNuevoUsuario({ ...infoNuevoUsuario, status: e.target.value })
+                }
+              />
+            </td>
+  
+            
+  
+          </>
+        ) : (
+          <>
+            <td>{usuario._id.slice(23)}</td>
+            <td>{usuario.name}</td>
+            <td>{usuario.lastname}</td>
+            <td>{usuario.role}</td>
+            <td>{usuario.status}</td>
+          </>
+        )}
+        <td>
+          <div className='flex w-full justify-around'>
+            {edit ? (
+              <>
+                <Tooltip title='Confirmar Edición' arrow>
+                  <i
+                    onClick={() => actualizarUsuario()}
+                    className='fas fa-check text-green-700 hover:text-green-500'
+                  />
+                </Tooltip>
+                <Tooltip title='Cancelar edición' arrow>
+                  <i
+                    onClick={() => setEdit(!edit)}
+                    className='fas fa-ban text-yellow-700 hover:text-yellow-500'
+                  />
+                </Tooltip>
+              </>
+            ) : (
+              <>
+                <Tooltip title='Editar Usuario' arrow>
+                  <i
+                    onClick={() => setEdit(!edit)}
+                    className='fas fa-pencil-alt text-yellow-700 hover:text-yellow-500'
+                  />
+                </Tooltip>
+                <Tooltip title='Eliminar Usuario' arrow>
+                  <i
+                    onClick={() => setOpenDialog(true)}
+                    className='fas fa-trash text-red-700 hover:text-red-500'
+                  />
+                </Tooltip>
+              </>
+            )}
+          </div>
+          <Dialog open={openDialog}>
+            <div className='p-8 flex flex-col'>
+              <h1 className='text-gray-900 text-2xl font-bold'>
+                ¿Está seguro de querer eliminar el usuario?
+              </h1>
+              <div className='flex w-full items-center justify-center my-4'>
+                <button
+                  onClick={() => eliminarUsuario()}
+                  className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
+                >
+                  Sí
+                </button>
+                <button
+                  onClick={() => setOpenDialog(false)}
+                  className='mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md'
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </Dialog>
+        </td>
+      </tr>
+    );
+  };
+  
+  const FormularioCreacionUsuarios = ({ setMostrarTabla, listaUsuarios, setUsuarios }) => {
+    const form = useRef(null);
+  
+    const submitForm = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form.current);
+  
+      const nuevoUsuario = {};
+      fd.forEach((value, key) => {
+        nuevoUsuario[key] = value;
+      });
+  
+  
+      const options = {
+        method: 'POST',
+        url: 'http://localhost:3001/usuarios/nuevo',
+        headers: { 'Content-Type': 'application/json' },
+        data: { name: nuevoUsuario.name, lastname: nuevoUsuario.lastname, status: nuevoUsuario.status, role: nuevoUsuario.role },
+      };
+  
+      await axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data);
+          toast.success('Agregando usuario nuevo');
+        })
+        .catch(function (error) {
+          console.error(error);
+          toast.error('Error al agregar usuario');
+         });
+  
+      setMostrarTabla(true);
+    };
+  
+    return (
+
+        <div className="container__all" id="container_all">
+        <div class="cover">
+      <div class="containe__cover">
+        <div class="container__info">
+
+        <h2>Ingresar Nuevo usuario</h2>
+        <form ref={form} onSubmit={submitForm} className='flex flex-col'>
+          <label className='flex flex-col' htmlFor='username'>
+            Nombre del usuario
+            <input
+              name='name'
+              className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+              type='text'
+              placeholder='Ingrese nombre'
+              required
+            />
+          </label>
+          <label className='flex flex-col' htmlFor='lastname'>
+            Apellido del usuario
+            <input
+              name='lastname'
+              className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+              type='text'
+              placeholder='Ingrese apellido'
+              required
+            />
+          </label>
+  
+          <label className='flex flex-col' htmlFor='status'>
+            Estado de usuario
+            <select
+              className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+              name='status'
+              required
+              defaultValue={0}
+            >
+              <option disabled value={0}>
+                Seleccione Estado Usuario
+              </option>
+              <option>Activo</option>
+              <option>Inactivo</option>
+            </select>
+          </label>
+  
+          <label className='flex flex-col' htmlFor='role'>
+            Rol de Usuario
+            <select
+              className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+              name='role'
+              required
+              defaultValue={0}
+            >
+              <option disabled value={0}>
+                Seleccione Rol usuario
+              </option>
+              <option>Administrador</option>
+              <option>Usuario Normal</option>
+            </select>
+          </label>
+          <button
+            type='submit'
+            className='col-span-3 bg-green-400 p-4 rounded-full shadow-md hover:bg-green-600 text-white'
+          >
+            Guardar Usuario
+          </button>
+        </form>
+        </div>
+        </div>
+        </div>
+        <Footer/>
+      </div>
+      
+    );
+  };
     
-export default GestionarUsuarios;
+export default Usuarios;
 

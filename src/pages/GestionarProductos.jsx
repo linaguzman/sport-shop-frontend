@@ -117,11 +117,11 @@ const GestionarProductos = () => {
             </tbody>
           </table>
         </div>
-        <div className='flex flex-col w-full m-2 md:hidden'>
+        <div className='hidden'>
           {productosFiltrados.map((el) => {
             return (
-              <div className='bg-gray-400 m-2 shadow-xl flex flex-col p-2 rounded-xl'>
-                <span>{el.id_producto}</span>
+              <div className=' rounded-xl'>
+                <span>{el._id}</span>
                 <span>{el.article}</span>
                 <span>{el.value_venta}</span>
                 <span>{el.status_venta}</span>
@@ -140,10 +140,10 @@ const GestionarProductos = () => {
     const [edit, setEdit] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [infoNuevoProducto, setInfoNuevoProducto] = useState({
-      _id_producto: producto._id_producto,
+      _id: producto._id,
       article: producto.article,
-      value_venta: producto.value_venta,
-      status_venta: producto.status_venta,
+      value_venta: producto.value,
+      status_venta: producto.status,
      
     });
   
@@ -201,8 +201,8 @@ const GestionarProductos = () => {
               <input
                 className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
                 type='text'
-                value={infoNuevoProducto._id_producto}
-                onChange={(e) => setInfoNuevoProducto({ ...infoNuevoProducto, _id_producto: e.target.value })}
+                value={infoNuevoProducto._id}
+                onChange={(e) => setInfoNuevoProducto({ ...infoNuevoProducto, _id: e.target.value })}
               />
             </td>
   
@@ -282,20 +282,20 @@ const GestionarProductos = () => {
             )}
           </div>
           <Dialog open={openDialog}>
-            <div className='p-8 flex flex-col'>
-              <h1 className='text-gray-900 text-2xl font-bold'>
+            <div className=' flex-col'>
+              <h1 className=' font-bold'>
                 ¿Está seguro de querer eliminar este producto?
               </h1>
-              <div className='flex w-full items-center justify-center my-4'>
+              <div className=' justify-center'>
                 <button
                   onClick={() => eliminarProducto()}
-                  className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
+                  className='botonSi'
                 >
                   Sí
                 </button>
                 <button
                   onClick={() => setOpenDialog(false)}
-                  className='mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md'
+                  className='botonNo'
                 >
                   No
                 </button>
@@ -349,7 +349,7 @@ const GestionarProductos = () => {
         <div class="container__info">
 
         <h2>Ingresar Nuevo producto</h2>
-        <form ref={form} onSubmit={submitForm} className='flex flex-col'>
+        <form ref={form} onSubmit={submitForm} className='product'>
           <label className='flex flex-col' htmlFor='producto des'>
             Descripción del producto
             <input

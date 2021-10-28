@@ -884,6 +884,12 @@ background-color: #ff790a;
     white-space:nowrap;
 }
 
+/*-----Botones de dialogo-----*/
+
+Dialog flex-col{
+    background: #dceff0;
+
+}
 
 /*---------USUARIOS------------*/
 
